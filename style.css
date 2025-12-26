@@ -194,7 +194,9 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
     border-radius: 15px;
     text-align: center;
     box-shadow: 0 0 30px rgba(0, 255, 157, 0.3);
-    min-width: 300px;
+    /* INCREASED WIDTH HERE */
+    width: 90%; 
+    max-width: 450px;
 }
 .background-anim { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 .shapes li { position: absolute; list-style: none; background: var(--accent); opacity: 0.1; animation: floatUp 15s linear infinite; bottom: -150px; }
@@ -243,6 +245,7 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
     border-radius: 10px;
     margin: 10px 0;
     border: 1px dashed #333;
+    min-width: 120px;
 }
 .reveal-box span { 
     font-size: 0.8rem;
@@ -250,10 +253,10 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
     display: block;
  }
 .reveal-box h1 { 
-    font-size: 1.5rem; /* Was 2rem */
-    letter-spacing: 3px; /* Was 5px */
+    font-size: 1.8rem; /* Made it slightly bigger again since we have space */
+    letter-spacing: 3px;
     margin-top: 5px;
-    word-break: break-all;
+    white-space: nowrap;
  }
 
 .modal-btn {
@@ -331,4 +334,41 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.btn-whatsapp {
+    background: #25D366; /* Official WhatsApp Green */
+    color: white;
+    border: none;
+    padding: 15px;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 0 #128C7E; /* Darker green shadow */
+}
+.btn-whatsapp:active { transform: translateY(4px); box-shadow: none; }
+
+.btn-back {
+    background: transparent;
+    border: 2px solid #555;
+    color: #888;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 20px;
+    width: 100%;
+    transition: all 0.2s;
+}
+.btn-back:hover {
+    border-color: #fff;
+    color: #fff;
 }

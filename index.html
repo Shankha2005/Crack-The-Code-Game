@@ -20,18 +20,23 @@
             <div class="menu-buttons">
                 <button class="menu-btn" onclick="startSinglePlayer()">👤 Play Single</button>
                 <div class="divider">--- ONLINE ---</div>
-                <button class="menu-btn" onclick="createRoom()">🆕 Create Room</button>
-                <button class="menu-btn" onclick="showJoinScreen()">➡️ Join Room</button>
+                <button class="menu-btn" onclick="createRoom()">Create Room</button>
+                <button class="menu-btn" onclick="showJoinScreen()">Join Room</button>
             </div>
         </section>
 
         <section id="join-room-screen" class="screen-section hidden">
             <div class="setup-form">
                 <h2>Join Game</h2>
+                
                 <div class="display-box" id="room-code-display"></div>
-                <p>Enter 4-digit Room Code</p>
-                <button class="action-btn" onclick="joinRoom()">JOIN</button>
-                <button class="text-btn" onclick="showScreen('landing')">Back</button>
+                
+                <p style="color:#888; font-size: 0.9rem; margin-top:10px;">
+                    Enter the 4-digit code using the keypad below.
+                    <br>Press <strong>➤</strong> to Join.
+                </p>
+
+                <button class="btn-back" onclick="showScreen('landing')">⬅ Go Back</button>
             </div>
         </section>
 
@@ -42,8 +47,14 @@
                     <span>Room Code:</span>
                     <h1 id="lobby-code">----</h1>
                 </div>
+                
                 <p id="lobby-status">Waiting for friend to join...</p>
-                <button class="action-btn" onclick="shareCode()">Share on WhatsApp</button>
+                
+                <button class="btn-whatsapp" onclick="shareCode()">
+                    <span>💬 Share on WhatsApp</span>
+                </button>
+                
+                <button class="btn-back" onclick="showScreen('landing')">Cancel & Exit</button>
             </div>
         </section>
 
