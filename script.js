@@ -369,9 +369,53 @@ function endGame(msg, p1s, p2s, type) {
 history.replaceState({step: 'landing'}, null, "");
 
 window.addEventListener('popstate', (event) => {
+    // If user tries to go back WHILE in an online game...
+    if (gameState.mode === 'online' && gameState.step === 'onlineGame') {
+        // A. Stop them! Push the "onlineGame" state back onto the history stack.
+        // This keeps the browser on the same page visually.
+        history.pushState({step: 'onlineGame'}, null, "");
+
+        // B. Show the "Are you sure?" modal
+        document.getElementById('exit-modal').classList.remove('hidden');
+        return; 
+    }
+
+    // Normal navigation for other screens
     if (event.state && event.state.step) {
         _internalShowScreen(event.state.step);
     } else {
         _internalShowScreen('landing');
     }
 });
+
+window.addEventListener('popstate', (event) => {
+    // If user tries to go back WHILE in an online game...
+    if (gameState.mode === 'online' && gameState.step === 'onlineGame') {
+        // A. Stop them! Push the "onlineGame" state back onto the history stack.
+        // This keeps the browser on the same page visually.
+        history.pushState({step: 'onlineGame'}, null, "");
+
+        // B. Show the "Are you sure?" modal
+        document.getElementById('exit-modal').classList.remove('hidden');
+        return; 
+    }
+
+    // Normal navigation for other screens
+    if (event.state && event.state.step) {
+        _internalShowScreen(event.state.step);
+    } else {
+        _internalShowScreen('landing');
+    }
+});
+
+// 3. Handle the Exit Modal Choices
+function confirmExit(shouldExit) {
+    document.getElementById('exit-modal').classList.add('hidden');
+
+    if (shouldExit) {
+        // User clicked YES -> Quit Game
+        quitOnlineGame(); 
+        showScreen('landing'); // Manually go to landing
+    } 
+    // If NO: Do nothing. (We already kept them on the page in step 2A)
+}

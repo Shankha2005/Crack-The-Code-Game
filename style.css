@@ -250,10 +250,10 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
     display: block;
  }
 .reveal-box h1 { 
-    font-size: 2rem;
-    color: #fff;
-    margin: 5px 0 0 0;
-    letter-spacing: 5px;
+    font-size: 1.5rem; /* Was 2rem */
+    letter-spacing: 3px; /* Was 5px */
+    margin-top: 5px;
+    word-break: break-all;
  }
 
 .modal-btn {
@@ -287,3 +287,48 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
 
 .win-msg { color: #00ff9d; text-shadow: 0 0 10px rgba(0, 255, 157, 0.5); }
 .loss-msg { color: #ff4d4d; text-shadow: 0 0 10px rgba(255, 77, 77, 0.5); }
+
+#exit-modal {
+    z-index: 100000 !important; /* Highest priority */
+}
+
+.exit-content {
+    background: #111;
+    border: 2px solid var(--error);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
+    max-width: 300px;
+}
+
+.exit-content h3 {
+    color: #fff;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.exit-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-yes {
+    background: var(--error);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-no {
+    background: #333;
+    color: white;
+    border: 1px solid #555;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}

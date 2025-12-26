@@ -126,6 +126,19 @@
             <button class="modal-btn" onclick="location.reload()">PLAY AGAIN</button>
         </div>
     </div>
+
+    <div id="exit-modal" class="modal hidden">
+        <div class="exit-content">
+            <h3>⚠️ Leave Game?</h3>
+            <p style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">
+                You will forfeit the match.
+            </p>
+            <div class="exit-buttons">
+                <button class="btn-yes" onclick="confirmExit(true)">YES</button>
+                <button class="btn-no" onclick="confirmExit(false)">NO</button>
+            </div>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
