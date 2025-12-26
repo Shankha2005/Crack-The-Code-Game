@@ -143,10 +143,25 @@ function joinRoom() {
 }
 
 // 4. Listen for Changes (The Brain)
+// REPLACE 'listenToRoom' in script.js
 function listenToRoom(roomCode) {
     roomListener = db.ref('rooms/' + roomCode).on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
+
+        // CHECK GAME OVER FIRST (Priority)
+        if (data.status === 'finished') {
+             // Stop the game interaction immediately
+             keypad.classList.add('hidden');
+             
+             // Determine Winner
+             if (data.winner === gameState.playerRole) {
+                 endGame("🏆 VICTORY! You Won!", data.p1Secret, data.p2Secret, "win");
+             } else {
+                 endGame("💔 DEFEAT! Better Luck Next Time", data.p1Secret, data.p2Secret, "loss");
+             }
+             return; // Stop processing other updates
+        }
 
         // A. Setup Phase
         if (data.status === 'setup') {
@@ -156,20 +171,9 @@ function listenToRoom(roomCode) {
         // B. Game Playing Phase
         if (data.status === 'playing') {
             gameState.oppSecret = (gameState.playerRole === 'p1') ? data.p2Secret : data.p1Secret;
-            showScreen('onlineGame');
+            // Only switch screen if we aren't already there (prevents flickering)
+            if (gameState.step !== 'onlineGame') showScreen('onlineGame');
             updateOnlineUI(data);
-        }
-
-        // C. Game Over (UPDATED LOGIC)
-        if (data.status === 'finished') {
-             // Check who won based on my role
-             if (data.winner === gameState.playerRole) {
-                 // I am the winner
-                 endGame("🏆 VICTORY! You Won!", data.p1Secret, data.p2Secret, "win");
-             } else {
-                 // I am the loser
-                 endGame("💔 DEFEAT! Better Luck Next Time", data.p1Secret, data.p2Secret, "loss");
-             }
         }
     });
 }
