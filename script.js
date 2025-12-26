@@ -419,3 +419,4 @@ function confirmExit(shouldExit) {
     } 
     // If NO: Do nothing. (We already kept them on the page in step 2A)
 }
+
