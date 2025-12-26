@@ -155,16 +155,21 @@ function listenToRoom(roomCode) {
         
         // B. Game Playing Phase
         if (data.status === 'playing') {
-            // Store opponent secret locally
             gameState.oppSecret = (gameState.playerRole === 'p1') ? data.p2Secret : data.p1Secret;
             showScreen('onlineGame');
             updateOnlineUI(data);
         }
 
-        // C. Game Over
+        // C. Game Over (UPDATED LOGIC)
         if (data.status === 'finished') {
-             const winner = data.winner === gameState.playerRole ? "You" : "Opponent";
-             endGame(`🎉 ${winner} Won!`, data.p1Secret, data.p2Secret);
+             // Check who won based on my role
+             if (data.winner === gameState.playerRole) {
+                 // I am the winner
+                 endGame("🏆 VICTORY! You Won!", data.p1Secret, data.p2Secret, "win");
+             } else {
+                 // I am the loser
+                 endGame("💔 DEFEAT! Better Luck Next Time", data.p1Secret, data.p2Secret, "loss");
+             }
         }
     });
 }
@@ -317,13 +322,28 @@ function handleSpGuess() {
 }
 
 function endGame(msg, p1s, p2s) {
-    document.getElementById('winner-text').textContent = msg;
-    document.getElementById('reveal-p1').textContent = p1s;
-    document.getElementById('reveal-p2').textContent = p2s;
+    // 1. Set the main message (e.g., "Won in 5 tries")
+    const titleEl = document.getElementById('winner-text');
+    titleEl.textContent = msg;
+    
+    // Reset colors then add the correct one (Green for Win, Red for Loss)
+    titleEl.className = ""; 
+    if (type === 'win') titleEl.classList.add('win-msg');
+    else if (type === 'loss') titleEl.classList.add('loss-msg');
+
+    // Reveal Secrets
+    document.getElementById('reveal-p1').textContent = p1s || "???";
+    document.getElementById('reveal-p2').textContent = p2s || "???";
+    
+    // Show Modal
     document.getElementById('result-modal').classList.remove('hidden');
     keypad.classList.add('hidden');
-    // Stop listening to DB
-    if (roomListener) db.ref('rooms/' + gameState.roomID).off();
+    
+    // Stop listening to DB so it doesn't loop
+    if (roomListener) {
+        db.ref('rooms/' + gameState.roomID).off();
+        roomListener = null;
+    }
 }
 
 // ==========================================

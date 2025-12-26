@@ -106,6 +106,26 @@
     </div>
 </div>
 
+    <div id="result-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="winner-text">🎉 You Won!</h2>
+            
+            <div class="secret-reveal">
+                <div class="reveal-box">
+                    <span id="p1-label">Secret Number:</span>
+                    <h1 id="reveal-p1">----</h1>
+                </div>
+
+                <div class="reveal-box" id="p2-box">
+                    <span>Opponent's Secret:</span>
+                    <h1 id="reveal-p2">----</h1>
+                </div>
+            </div>
+
+            <button class="modal-btn" onclick="location.reload()">PLAY AGAIN</button>
+        </div>
+    </div>
+
     </div>
     <script src="script.js"></script>
 </body>

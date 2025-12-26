@@ -49,11 +49,18 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    background: transparent; /* Container handles background now */
-    border: none; /* Container handles border now */
-    border-radius: 0;
+    background-color: rgba(15, 15, 15, 0.85); 
+    background-image: 
+        linear-gradient(rgba(0, 255, 157, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 157, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 255, 157, 0.2);
+    border-radius: 16px 16px 0 0; /* Bottom corners flat for keypad connection */
     padding: 15px;
-    overflow-y: auto; /* Connects to keypad */
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 0; /* Connects to keypad */
 }
 
 .hidden { display: none !important; }
@@ -181,3 +188,68 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
 .background-anim { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 .shapes li { position: absolute; list-style: none; background: var(--accent); opacity: 0.1; animation: floatUp 15s linear infinite; bottom: -150px; }
 @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); opacity: 0.1; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
+
+/* --- MODAL STYLES --- */
+.modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.9); /* Dark background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* Sit on top of everything */
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: #1e1e1e;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    border: 2px solid var(--accent);
+    box-shadow: 0 0 50px rgba(0, 255, 157, 0.5);
+    width: 85%;
+    max-width: 400px;
+    animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal h2 {
+    color: var(--accent);
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px var(--accent);
+}
+
+.reveal-box {
+    background: #111;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 10px 0;
+    border: 1px dashed #333;
+}
+.reveal-box span { color: #888; font-size: 0.8rem; }
+.reveal-box h1 { color: white; font-size: 2rem; letter-spacing: 5px; margin-top: 5px; }
+
+.modal-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 20px;
+    width: 100%;
+    transition: transform 0.2s;
+}
+.modal-btn:active { transform: scale(0.95); }
+
+.win-msg { color: #00ff9d; text-shadow: 0 0 10px rgba(0, 255, 157, 0.5); }
+.loss-msg { color: #ff4d4d; text-shadow: 0 0 10px rgba(255, 77, 77, 0.5); }
