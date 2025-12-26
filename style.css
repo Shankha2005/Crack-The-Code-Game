@@ -177,10 +177,8 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
 /* Update the .modal class */
 .modal {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
     background: rgba(0, 0, 0, 0.95);
     display: flex;
     justify-content: center;
@@ -190,13 +188,14 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
 .modal-content {
     background: #000;
     border: 2px solid var(--accent);
-    padding: 30px;
+    padding: 25px 15px; /* Less side padding to give more room */
     border-radius: 15px;
     text-align: center;
     box-shadow: 0 0 30px rgba(0, 255, 157, 0.3);
-    /* INCREASED WIDTH HERE */
-    width: 90%; 
-    max-width: 450px;
+    
+    /* FIX 1: Make the main card wider */
+    width: 95%; 
+    max-width: 550px;
 }
 .background-anim { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 .shapes li { position: absolute; list-style: none; background: var(--accent); opacity: 0.1; animation: floatUp 15s linear infinite; bottom: -150px; }
@@ -240,37 +239,47 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
 }
 
 .reveal-box {
-    background: #111;
-    padding: 15px;
-    border-radius: 10px;
-    margin: 10px 0;
-    border: 1px dashed #333;
-    min-width: 120px;
+    flex: 1; 
+    background: #000;
+    padding: 10px 5px; /* Reduce padding inside the box */
+    border-radius: 8px;
+    border: 1px dashed #444;
+    
+    /* FIX 4: Prevent them from getting stuck at a minimum width */
+    min-width: 0; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
-.reveal-box span { 
-    font-size: 0.8rem;
+.reveal-box span {
+    font-size: 0.75rem; /* Slightly smaller label */
     color: #888;
-    display: block;
- }
-.reveal-box h1 { 
-    font-size: 1.8rem; /* Made it slightly bigger again since we have space */
-    letter-spacing: 3px;
-    margin-top: 5px;
-    white-space: nowrap;
- }
+    margin-bottom: 5px;
+}
+
+.reveal-box h1 {
+    color: #fff;
+    margin: 0;
+    font-weight: bold;
+    white-space: nowrap; /* Keep on one line */
+    
+    /* FIX 5: Dynamic font size so it fits */
+    font-size: clamp(1.2rem, 5vw, 1.8rem); 
+    letter-spacing: 2px;
+}
 
 .modal-btn {
     background: var(--accent);
     color: #000;
     border: none;
-    padding: 15px 30px;
-    font-size: 1.2rem;
+    padding: 15px;
+    font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    margin-top: 20px;
     border-radius: 5px;
     width: 100%;
     font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
 }
 .modal-btn:active { transform: scale(0.95); }
 .modal-btn:hover {
@@ -280,16 +289,20 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
 
 .secret-reveal {
     display: flex;
-    justify-content: space-around;
-    margin: 20px 0;
-    gap: 10px;
+    justify-content: center; /* Center them */
+    align-items: stretch;
+    gap: 8px; /* Small gap between boxes */
     background: #111;
-    padding: 10px;
+    padding: 15px 10px;
     border-radius: 10px;
+    margin: 20px 0;
+    
+    /* FIX 2: Force this black box to fill the modal */
+    width: 100%;
 }
 
-.win-msg { color: #00ff9d; text-shadow: 0 0 10px rgba(0, 255, 157, 0.5); }
-.loss-msg { color: #ff4d4d; text-shadow: 0 0 10px rgba(255, 77, 77, 0.5); }
+.win-msg { color: #00ff9d; text-shadow: 0 0 15px rgba(0, 255, 157, 0.6); font-size: 2rem; }
+.loss-msg { color: #ff4d4d; text-shadow: 0 0 15px rgba(255, 77, 77, 0.6); font-size: 2rem; }
 
 #exit-modal {
     z-index: 100000 !important; /* Highest priority */
