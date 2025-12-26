@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crack the Code - Online</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+    <div class="background-anim">...</div> <div class="container" id="main-container">
+        <header>
+            <h1>🔐 CRACK THE CODE</h1>
+        </header>
+
+        <section id="landing-screen" class="screen-section">
+            <div class="menu-buttons">
+                <button class="menu-btn" onclick="startSinglePlayer()">👤 Play Single</button>
+                <div class="divider">--- ONLINE ---</div>
+                <button class="menu-btn" onclick="createRoom()">🆕 Create Room</button>
+                <button class="menu-btn" onclick="showJoinScreen()">➡️ Join Room</button>
+            </div>
+        </section>
+
+        <section id="join-room-screen" class="screen-section hidden">
+            <div class="setup-form">
+                <h2>Join Game</h2>
+                <div class="display-box" id="room-code-display"></div>
+                <p>Enter 4-digit Room Code</p>
+                <button class="action-btn" onclick="joinRoom()">JOIN</button>
+                <button class="text-btn" onclick="showScreen('landing')">Back</button>
+            </div>
+        </section>
+
+        <section id="lobby-screen" class="screen-section hidden">
+            <div class="setup-form">
+                <h2>Waiting Room</h2>
+                <div class="room-code-box">
+                    <span>Room Code:</span>
+                    <h1 id="lobby-code">----</h1>
+                </div>
+                <p id="lobby-status">Waiting for friend to join...</p>
+                <button class="action-btn" onclick="shareCode()">Share on WhatsApp</button>
+            </div>
+        </section>
+
+        <section id="single-screen" class="screen-section hidden">
+            <div id="sp-history" class="history-log"></div>
+            <div class="game-form">
+                <div class="display-box" id="sp-display"></div>
+                <p class="error-msg" id="sp-error"></p>
+            </div>
+        </section>
+
+        <section id="online-setup-screen" class="screen-section hidden">
+            <div class="setup-form">
+                <h2 id="setup-title">Set Your Secret</h2>
+                <div class="display-box" id="online-secret-display"></div>
+                <button class="action-btn" onclick="submitOnlineSecret()">READY</button>
+            </div>
+        </section>
+
+        <section id="online-game-screen" class="screen-section hidden">
+            <h2 class="turn-indicator" id="online-turn-text">Waiting...</h2>
+            
+            <div class="dual-history">
+                <div class="player-col">
+                    <h3>You</h3>
+                    <div id="my-history" class="history-log"></div>
+                </div>
+                <div class="player-col">
+                    <h3>Opponent</h3>
+                    <div id="opp-history" class="history-log"></div>
+                </div>
+            </div>
+
+            <div class="game-form">
+                <div class="display-box" id="online-display"></div>
+                <p class="error-msg" id="online-error"></p>
+            </div>
+        </section>
+
+        <div id="custom-keypad" class="hidden">... (Keep existing keypad code) ...</div>
+        <div id="result-modal" class="modal hidden">... (Keep existing modal code) ...</div>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
