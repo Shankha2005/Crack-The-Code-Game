@@ -83,8 +83,28 @@
             </div>
         </section>
 
-        <div id="custom-keypad" class="hidden">... (Keep existing keypad code) ...</div>
-        <div id="result-modal" class="modal hidden">... (Keep existing modal code) ...</div>
+        <div id="custom-keypad" class="hidden">
+    <div class="key-row">
+        <button class="key" onclick="pressKey(1)">1</button>
+        <button class="key" onclick="pressKey(2)">2</button>
+        <button class="key" onclick="pressKey(3)">3</button>
+    </div>
+    <div class="key-row">
+        <button class="key" onclick="pressKey(4)">4</button>
+        <button class="key" onclick="pressKey(5)">5</button>
+        <button class="key" onclick="pressKey(6)">6</button>
+    </div>
+    <div class="key-row">
+        <button class="key" onclick="pressKey(7)">7</button>
+        <button class="key" onclick="pressKey(8)">8</button>
+        <button class="key" onclick="pressKey(9)">9</button>
+    </div>
+    <div class="key-row">
+        <div class="key-spacer"></div> 
+        <button class="key key-back" onclick="pressBackspace()">⌫</button>
+        <button class="key key-submit" onclick="submitCurrentInput()">➤</button>
+    </div>
+</div>
 
     </div>
     <script src="script.js"></script>

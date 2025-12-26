@@ -16,10 +16,12 @@ body {
     color: var(--text-main);
     display: flex;
     justify-content: center;
-    height: 100dvh; /* Dynamic height */
-    padding: 0;
+    /* Use 95% of screen height so there is a gap at top/bottom */
+    height: 98dvh; 
+    padding: 10px; /* This creates the gap around the border */
     overflow: hidden;
     user-select: none;
+    align-items: center; /* Centers everything vertically */
 }
 
 .container {
@@ -27,10 +29,16 @@ body {
     max-width: 500px;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 100%; /* Fills the body space defined above */
     position: relative;
     z-index: 10;
-    padding: 10px 10px 0 10px; 
+    
+    /* Move the Border HERE so it wraps the whole app */
+    border: 1px solid var(--accent);
+    border-radius: 20px; /* Round the corners */
+    background: rgba(10, 10, 10, 0.6); /* Slightly dark background inside border */
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.1);
+    overflow: hidden; /* Keeps content inside the rounded corners */
 }
 
 header { text-align: center; margin-bottom: 10px; flex-shrink: 0; }
@@ -41,18 +49,11 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    background-color: rgba(15, 15, 15, 0.85); 
-    background-image: 
-        linear-gradient(rgba(0, 255, 157, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 255, 157, 0.05) 1px, transparent 1px);
-    background-size: 30px 30px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(0, 255, 157, 0.2);
-    border-radius: 16px 16px 0 0; /* Bottom corners flat for keypad connection */
+    background: transparent; /* Container handles background now */
+    border: none; /* Container handles border now */
+    border-radius: 0;
     padding: 15px;
-    overflow: hidden;
-    position: relative;
-    margin-bottom: 0; /* Connects to keypad */
+    overflow-y: auto; /* Connects to keypad */
 }
 
 .hidden { display: none !important; }

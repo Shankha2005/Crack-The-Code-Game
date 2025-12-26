@@ -325,3 +325,49 @@ function endGame(msg, p1s, p2s) {
     // Stop listening to DB
     if (roomListener) db.ref('rooms/' + gameState.roomID).off();
 }
+
+// ==========================================
+// --- NEW: BACK BUTTON HANDLING ---
+// ==========================================
+
+// 1. When the page first loads, save the "landing" state
+history.replaceState({step: 'landing'}, null, "");
+
+// 2. Listen for the Back Button press
+window.addEventListener('popstate', (event) => {
+    if (event.state && event.state.step) {
+        // If we have a saved step, go to it WITHOUT pushing new history
+        // (We manually toggle visibility to avoid loops)
+        _internalShowScreen(event.state.step);
+    } else {
+        // Default fallback
+        _internalShowScreen('landing');
+    }
+});
+
+// 3. Update showScreen to Push History
+// (REPLACE your existing showScreen function with this one)
+function showScreen(name) {
+    // Save this new screen to browser history so "Back" works
+    if (name !== 'landing') {
+        history.pushState({step: name}, null, "");
+    }
+    _internalShowScreen(name);
+}
+
+// Internal helper that just switches UI (doesn't mess with history)
+function _internalShowScreen(name) {
+    for (let s in screens) screens[s].classList.add('hidden');
+    screens[name].classList.remove('hidden');
+    
+    gameState.step = name;
+
+    // Toggle Keypad Visibility
+    if (['landing', 'lobby'].includes(name)) {
+        keypad.classList.add('hidden');
+    } else {
+        keypad.classList.remove('hidden');
+        currentInput = ""; 
+        updateDisplay();
+    }
+}
