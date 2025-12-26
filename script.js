@@ -1,3 +1,4 @@
+// --- FIREBASE CONFIGURATION ---
 const firebaseConfig = {
   apiKey: "AIzaSyAE5oryZFJp6FJ3VG0gvtGQ5GNv3eUx4sM",
   authDomain: "crackthecode-game.firebaseapp.com",
@@ -10,24 +11,23 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-// (We use the global 'firebase' object because we loaded it in index.html)
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let gameState = {
-    mode: null, // 'single', 'online'
+    mode: null, 
     step: 'landing', 
     roomID: null,
-    playerRole: null, // 'p1' (Creator) or 'p2' (Joiner)
-    secret: null,     // My secret number
-    oppSecret: null,  // Opponent's secret (loaded later)
-    turn: 'p1',       // Who's turn is it?
-    spSecret: null,   // Single player secret
+    playerRole: null, 
+    secret: null,    
+    oppSecret: null, 
+    turn: 'p1',       
+    spSecret: null,   
     spAttempts: 0
 };
 
 let currentInput = "";
-let roomListener = null; // To stop listening when game ends
+let roomListener = null; 
 
 // --- DOM ELEMENTS ---
 const keypad = document.getElementById('custom-keypad');
@@ -42,10 +42,25 @@ const screens = {
 
 // --- NAVIGATION ---
 function showScreen(name) {
+    if (name !== 'landing') {
+        history.pushState({step: name}, null, "");
+    }
+    _internalShowScreen(name);
+}
+
+// Internal helper handles UI + Quitting Logic
+function _internalShowScreen(name) {
+    // CRITICAL: If we are going BACK to landing from an online game, we must QUIT.
+    if (name === 'landing' && gameState.mode === 'online') {
+        quitOnlineGame();
+    }
+
     for (let s in screens) screens[s].classList.add('hidden');
     screens[name].classList.remove('hidden');
     
-    // Keypad Logic
+    gameState.step = name;
+
+    // Toggle Keypad Visibility
     if (['landing', 'lobby'].includes(name)) {
         keypad.classList.add('hidden');
     } else {
@@ -53,7 +68,6 @@ function showScreen(name) {
         currentInput = ""; 
         updateDisplay();
     }
-    gameState.step = name;
 }
 
 // --- KEYPAD & INPUT ---
@@ -75,7 +89,6 @@ function updateDisplay() {
     else if (gameState.step === 'onlineGame') el = document.getElementById('online-display');
 
     if (el) {
-        // Mask inputs for Setup, show plain for others
         if (gameState.step === 'onlineSetup') el.textContent = '*'.repeat(currentInput.length);
         else el.textContent = currentInput;
     }
@@ -83,7 +96,7 @@ function updateDisplay() {
 function submitCurrentInput() {
     if (currentInput.length === 0) return;
     if (gameState.step === 'single') handleSpGuess();
-    else if (gameState.step === 'join') joinRoom(); // Confirm join
+    else if (gameState.step === 'join') joinRoom(); 
     else if (gameState.step === 'onlineSetup') submitOnlineSecret();
     else if (gameState.step === 'onlineGame') handleOnlineGuess();
 }
@@ -92,26 +105,23 @@ function submitCurrentInput() {
 // --- ONLINE MULTIPLAYER LOGIC ---
 // ===============================
 
-// 1. Create Room (Player 1)
 function createRoom() {
-    // Generate 4 digit code using ONLY 1-9
     let roomCode = "";
     for(let i=0; i<4; i++) {
-        roomCode += Math.floor(Math.random() * 9) + 1; // Generates 1-9
+        roomCode += Math.floor(Math.random() * 9) + 1; 
     }
 
     gameState.roomID = roomCode;
     gameState.playerRole = 'p1';
     gameState.mode = 'online';
 
-    // Set Initial State
     db.ref('rooms/' + roomCode).set({
         status: 'waiting',
         turn: 'p1',
         created: Date.now()
     });
 
-    // NEW: If I close the tab/app, tell the DB the game is abandoned
+    // Handle Tab Close / Internet Loss
     db.ref('rooms/' + roomCode).onDisconnect().update({ status: 'abandoned' });
 
     document.getElementById('lobby-code').textContent = roomCode;
@@ -119,13 +129,11 @@ function createRoom() {
     listenToRoom(roomCode);
 }
 
-// 2. Join Room UI
 function showJoinScreen() {
     gameState.step = 'join';
     showScreen('join');
 }
 
-// 3. Confirm Join (Player 2)
 function joinRoom() {
     const code = currentInput;
     if (code.length !== 4) return;
@@ -136,10 +144,9 @@ function joinRoom() {
             gameState.playerRole = 'p2';
             gameState.mode = 'online';
             
-            // Update Status
             db.ref('rooms/' + code).update({ status: 'setup' });
             
-            // NEW: If I disconnect, mark game as abandoned
+            // Handle Tab Close / Internet Loss
             db.ref('rooms/' + code).onDisconnect().update({ status: 'abandoned' });
             
             listenToRoom(code);
@@ -149,26 +156,28 @@ function joinRoom() {
         }
     });
 }
+
 function listenToRoom(roomCode) {
     roomListener = db.ref('rooms/' + roomCode).on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
 
-        // --- NEW: HANDLE OPPONENT QUITTING ---
+        // --- 1. HANDLE OPPONENT QUITTING ---
         if (data.status === 'abandoned') {
-            alert("Opponent left the game. returning to menu...");
-            window.location.reload(); // Restarts the app
+            // Only alert if *I* am still in the game (not if I was the one who quit)
+            if (gameState.mode === 'online') {
+                alert("Opponent left the game. Returning to menu...");
+                window.location.reload(); 
+            }
             return;
         }
 
-        // --- WINNER LOGIC ---
+        // --- 2. WINNER LOGIC ---
         if (data.status === 'finished') {
-             keypad.classList.add('hidden'); // Hide keypad immediately
+             keypad.classList.add('hidden'); 
              
-             // Force UI update to show the winning move BEFORE showing modal
              if (data.moves) updateOnlineUI(data);
 
-             // Slight delay so you can see the move that won
              setTimeout(() => {
                  if (data.winner === gameState.playerRole) {
                      endGame("🏆 VICTORY!", data.p1Secret, data.p2Secret, "win");
@@ -189,25 +198,34 @@ function listenToRoom(roomCode) {
     });
 }
 
-// 5. Submit Secret Number
+// --- NEW: QUIT FUNCTION ---
+function quitOnlineGame() {
+    if (gameState.roomID) {
+        // Tell DB I am leaving
+        db.ref('rooms/' + gameState.roomID).update({ status: 'abandoned' });
+        // Stop listening
+        db.ref('rooms/' + gameState.roomID).off();
+    }
+    // Reset Local State
+    gameState.mode = null;
+    gameState.roomID = null;
+    roomListener = null;
+}
+
 function submitOnlineSecret() {
     const val = currentInput;
-    if (!isValid(val, 'online-secret-display')) return; // Re-use validation logic
+    if (!isValid(val, 'online-secret-display')) return; 
 
     gameState.secret = val;
     
-    // Save to DB
     const update = {};
     update[gameState.playerRole + 'Secret'] = val;
     db.ref('rooms/' + gameState.roomID).update(update);
 
-    // Wait UI
     document.getElementById('setup-title').textContent = "Waiting for Opponent...";
     currentInput = ""; updateDisplay();
     keypad.classList.add('hidden');
 
-    // Check if both are ready (handled by cloud trigger or client check)
-    // Simple client check:
     db.ref('rooms/' + gameState.roomID).once('value', (snap) => {
         const d = snap.val();
         if (d.p1Secret && d.p2Secret) {
@@ -216,7 +234,6 @@ function submitOnlineSecret() {
     });
 }
 
-// 6. Handle Guessing
 function handleOnlineGuess() {
     const guess = currentInput;
     if (gameState.turn !== gameState.playerRole) {
@@ -225,10 +242,8 @@ function handleOnlineGuess() {
     }
     if (!isValid(guess, 'online-error')) return;
 
-    // Calculate Result
     const res = calculateResults(guess, gameState.oppSecret);
 
-    // Push Move to DB
     const move = {
         player: gameState.playerRole,
         guess: guess,
@@ -236,18 +251,14 @@ function handleOnlineGuess() {
         num: res.num
     };
 
-    // Add move to history array in DB
-    const newRef = db.ref('rooms/' + gameState.roomID + '/moves').push();
-    newRef.set(move);
+    db.ref('rooms/' + gameState.roomID + '/moves').push(move);
 
-    // Check Win
     if (res.pos === 4) {
         db.ref('rooms/' + gameState.roomID).update({ 
             status: 'finished', 
             winner: gameState.playerRole 
         });
     } else {
-        // Switch Turn
         const nextTurn = gameState.playerRole === 'p1' ? 'p2' : 'p1';
         db.ref('rooms/' + gameState.roomID).update({ turn: nextTurn });
     }
@@ -255,14 +266,12 @@ function handleOnlineGuess() {
     currentInput = ""; updateDisplay();
 }
 
-// 7. Update UI from DB Data
 function updateOnlineUI(data) {
     gameState.turn = data.turn;
     const turnText = document.getElementById('online-turn-text');
     turnText.textContent = (gameState.turn === gameState.playerRole) ? "Your Turn" : "Opponent's Turn";
     turnText.style.color = (gameState.turn === gameState.playerRole) ? "var(--accent)" : "var(--text-sec)";
 
-    // Clear and Rebuild History
     const myHist = document.getElementById('my-history');
     const oppHist = document.getElementById('opp-history');
     myHist.innerHTML = ""; oppHist.innerHTML = "";
@@ -275,16 +284,14 @@ function updateOnlineUI(data) {
     }
 }
 
-// 8. Share on WhatsApp
 function shareCode() {
     const text = `Let's play Crack The Code! Join my room: ${gameState.roomID}`;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
 }
 
-// --- UTILITIES (Reused) ---
-function generateSecret() { /* Keep existing */ 
-    // ... (Use your existing generateSecret logic) ...
+// --- UTILITIES ---
+function generateSecret() { 
     let digits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     for (let i = digits.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -293,14 +300,14 @@ function generateSecret() { /* Keep existing */
     return digits.slice(0, 4).join('');
 }
 
-function calculateResults(guess, secret) { /* Keep existing */ 
+function calculateResults(guess, secret) { 
     let pos = 0; let num = 0;
     for (let i = 0; i < 4; i++) { if (guess[i] === secret[i]) pos++; }
     for (let i = 0; i < 4; i++) { if (secret.includes(guess[i])) num++; }
     return { pos, num };
 }
 
-function isValid(val, errorElId) { /* Keep existing */ 
+function isValid(val, errorElId) { 
      const errorEl = document.getElementById(errorElId);
      if(val.length !== 4) { showError(errorEl, "4 Digits!"); return false; }
      if(new Set(val).size !== 4) { showError(errorEl, "Unique only!"); return false; }
@@ -317,7 +324,7 @@ function addHistoryItemDOM(container, guess, res) {
     container.scrollTop = container.scrollHeight;
 }
 
-// --- SINGLE PLAYER LOGIC (Simplified wrapper) ---
+// --- SINGLE PLAYER ---
 function startSinglePlayer() {
     gameState.mode = 'single';
     gameState.spSecret = generateSecret();
@@ -333,11 +340,11 @@ function handleSpGuess() {
     const res = calculateResults(guess, gameState.spSecret);
     addHistoryItemDOM(document.getElementById('sp-history'), guess, res);
     currentInput = ""; updateDisplay();
-    if (res.pos === 4) endGame(`🎉 Won in ${gameState.spAttempts} tries!`, gameState.spSecret, "-");
+    if (res.pos === 4) endGame(`🎉 Won in ${gameState.spAttempts} tries!`, gameState.spSecret, "-", "win");
 }
 
-function endGame(msg, p1s, p2s) {
-    // 1. Set the main message (e.g., "Won in 5 tries")
+// FIX: Added 'type' parameter so the modal knows which color to show
+function endGame(msg, p1s, p2s, type) {
     const titleEl = document.getElementById('winner-text');
     titleEl.textContent = msg;
     
@@ -346,63 +353,25 @@ function endGame(msg, p1s, p2s) {
     if (type === 'win') titleEl.classList.add('win-msg');
     else if (type === 'loss') titleEl.classList.add('loss-msg');
 
-    // Reveal Secrets
     document.getElementById('reveal-p1').textContent = p1s || "???";
     document.getElementById('reveal-p2').textContent = p2s || "???";
     
-    // Show Modal
     document.getElementById('result-modal').classList.remove('hidden');
     keypad.classList.add('hidden');
     
-    // Stop listening to DB so it doesn't loop
     if (roomListener) {
         db.ref('rooms/' + gameState.roomID).off();
         roomListener = null;
     }
 }
 
-// ==========================================
-// --- NEW: BACK BUTTON HANDLING ---
-// ==========================================
-
-// 1. When the page first loads, save the "landing" state
+// --- BACK BUTTON HANDLING ---
 history.replaceState({step: 'landing'}, null, "");
 
-// 2. Listen for the Back Button press
 window.addEventListener('popstate', (event) => {
     if (event.state && event.state.step) {
-        // If we have a saved step, go to it WITHOUT pushing new history
-        // (We manually toggle visibility to avoid loops)
         _internalShowScreen(event.state.step);
     } else {
-        // Default fallback
         _internalShowScreen('landing');
     }
 });
-
-// 3. Update showScreen to Push History
-// (REPLACE your existing showScreen function with this one)
-function showScreen(name) {
-    // Save this new screen to browser history so "Back" works
-    if (name !== 'landing') {
-        history.pushState({step: name}, null, "");
-    }
-    _internalShowScreen(name);
-}
-
-// Internal helper that just switches UI (doesn't mess with history)
-function _internalShowScreen(name) {
-    for (let s in screens) screens[s].classList.add('hidden');
-    screens[name].classList.remove('hidden');
-    
-    gameState.step = name;
-
-    // Toggle Keypad Visibility
-    if (['landing', 'lobby'].includes(name)) {
-        keypad.classList.add('hidden');
-    } else {
-        keypad.classList.remove('hidden');
-        currentInput = ""; 
-        updateDisplay();
-    }
-}
