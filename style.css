@@ -176,23 +176,26 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
 
 /* Update the .modal class */
 .modal {
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%;
-    background: rgba(0,0,0,0.95); /* Make it darker to hide game behind */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
     display: flex;
-    justify-content: center; 
-    align-items: center; 
-    z-index: 9999; /* Force it to be the top-most layer */
-    backdrop-filter: blur(10px);
+    justify-content: center;
+    align-items: center;
+    z-index: 99999 !important;
 }
 .modal-content {
-    background: var(--card-bg); padding: 30px; border-radius: 20px;
-    text-align: center; border: 2px solid var(--accent); width: 90%;
+    background: #000;
+    border: 2px solid var(--accent);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 255, 157, 0.3);
+    min-width: 300px;
 }
-.modal-btn { padding: 12px 25px; background: var(--accent); border: none; border-radius: 8px; font-weight: bold; margin-top: 15px;}
 .background-anim { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 .shapes li { position: absolute; list-style: none; background: var(--accent); opacity: 0.1; animation: floatUp 15s linear infinite; bottom: -150px; }
 @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); opacity: 0.1; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
@@ -241,8 +244,17 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
     margin: 10px 0;
     border: 1px dashed #333;
 }
-.reveal-box span { color: #888; font-size: 0.8rem; }
-.reveal-box h1 { color: white; font-size: 2rem; letter-spacing: 5px; margin-top: 5px; }
+.reveal-box span { 
+    font-size: 0.8rem;
+    color: #888;
+    display: block;
+ }
+.reveal-box h1 { 
+    font-size: 2rem;
+    color: #fff;
+    margin: 5px 0 0 0;
+    letter-spacing: 5px;
+ }
 
 .modal-btn {
     background: var(--accent);
@@ -251,13 +263,27 @@ header h1 { color: var(--accent); font-size: 1.5rem; text-shadow: 0 0 10px rgba(
     padding: 15px 30px;
     font-size: 1.2rem;
     font-weight: bold;
-    border-radius: 50px;
     cursor: pointer;
     margin-top: 20px;
+    border-radius: 5px;
     width: 100%;
-    transition: transform 0.2s;
+    font-family: 'JetBrains Mono', monospace;
 }
 .modal-btn:active { transform: scale(0.95); }
+.modal-btn:hover {
+    box-shadow: 0 0 
+    15px var(--accent);
+}
+
+.secret-reveal {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+    gap: 10px;
+    background: #111;
+    padding: 10px;
+    border-radius: 10px;
+}
 
 .win-msg { color: #00ff9d; text-shadow: 0 0 10px rgba(0, 255, 157, 0.5); }
 .loss-msg { color: #ff4d4d; text-shadow: 0 0 10px rgba(255, 77, 77, 0.5); }

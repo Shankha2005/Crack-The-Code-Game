@@ -94,20 +94,26 @@ function submitCurrentInput() {
 
 // 1. Create Room (Player 1)
 function createRoom() {
-    // Generate 4 digit room code
-    const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+    // Generate 4 digit code using ONLY 1-9
+    let roomCode = "";
+    for(let i=0; i<4; i++) {
+        roomCode += Math.floor(Math.random() * 9) + 1; // Generates 1-9
+    }
+
     gameState.roomID = roomCode;
     gameState.playerRole = 'p1';
     gameState.mode = 'online';
 
-    // Save to Firebase
+    // Set Initial State
     db.ref('rooms/' + roomCode).set({
         status: 'waiting',
         turn: 'p1',
         created: Date.now()
     });
 
-    // Show Lobby
+    // NEW: If I close the tab/app, tell the DB the game is abandoned
+    db.ref('rooms/' + roomCode).onDisconnect().update({ status: 'abandoned' });
+
     document.getElementById('lobby-code').textContent = roomCode;
     showScreen('lobby');
     listenToRoom(roomCode);
@@ -121,18 +127,20 @@ function showJoinScreen() {
 
 // 3. Confirm Join (Player 2)
 function joinRoom() {
-    const code = currentInput; // From keypad
+    const code = currentInput;
     if (code.length !== 4) return;
 
-    // Check if room exists
     db.ref('rooms/' + code).once('value', (snapshot) => {
         if (snapshot.exists() && snapshot.val().status === 'waiting') {
             gameState.roomID = code;
             gameState.playerRole = 'p2';
             gameState.mode = 'online';
             
-            // Update Status to Setup
+            // Update Status
             db.ref('rooms/' + code).update({ status: 'setup' });
+            
+            // NEW: If I disconnect, mark game as abandoned
+            db.ref('rooms/' + code).onDisconnect().update({ status: 'abandoned' });
             
             listenToRoom(code);
         } else {
@@ -141,37 +149,40 @@ function joinRoom() {
         }
     });
 }
-
-// 4. Listen for Changes (The Brain)
-// REPLACE 'listenToRoom' in script.js
 function listenToRoom(roomCode) {
     roomListener = db.ref('rooms/' + roomCode).on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
 
-        // CHECK GAME OVER FIRST (Priority)
-        if (data.status === 'finished') {
-             // Stop the game interaction immediately
-             keypad.classList.add('hidden');
-             
-             // Determine Winner
-             if (data.winner === gameState.playerRole) {
-                 endGame("🏆 VICTORY! You Won!", data.p1Secret, data.p2Secret, "win");
-             } else {
-                 endGame("💔 DEFEAT! Better Luck Next Time", data.p1Secret, data.p2Secret, "loss");
-             }
-             return; // Stop processing other updates
+        // --- NEW: HANDLE OPPONENT QUITTING ---
+        if (data.status === 'abandoned') {
+            alert("Opponent left the game. returning to menu...");
+            window.location.reload(); // Restarts the app
+            return;
         }
 
-        // A. Setup Phase
-        if (data.status === 'setup') {
-            showScreen('onlineSetup');
+        // --- WINNER LOGIC ---
+        if (data.status === 'finished') {
+             keypad.classList.add('hidden'); // Hide keypad immediately
+             
+             // Force UI update to show the winning move BEFORE showing modal
+             if (data.moves) updateOnlineUI(data);
+
+             // Slight delay so you can see the move that won
+             setTimeout(() => {
+                 if (data.winner === gameState.playerRole) {
+                     endGame("🏆 VICTORY!", data.p1Secret, data.p2Secret, "win");
+                 } else {
+                     endGame("💔 DEFEAT!", data.p1Secret, data.p2Secret, "loss");
+                 }
+             }, 500);
+             return; 
         }
-        
-        // B. Game Playing Phase
+
+        // Standard State Changes
+        if (data.status === 'setup') showScreen('onlineSetup');
         if (data.status === 'playing') {
             gameState.oppSecret = (gameState.playerRole === 'p1') ? data.p2Secret : data.p1Secret;
-            // Only switch screen if we aren't already there (prevents flickering)
             if (gameState.step !== 'onlineGame') showScreen('onlineGame');
             updateOnlineUI(data);
         }
