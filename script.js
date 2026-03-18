@@ -213,33 +213,45 @@ function quitOnlineGame() {
 }
 
 function submitOnlineSecret() {
+
     const val = currentInput;
-    
-    // NOTE: You originally had 'online-secret-display' here. That is your *** display element! 
-    // You should use a dedicated error element ID here (like 'setup-error') so it doesn't overwrite your display.
-    if (!isValid(val, 'setup-error')) return; 
+
+    if (!isValid(val, 'online-secret-display')) return; 
+
+
 
     gameState.secret = val;
+
     
+
     const update = {};
+
     update[gameState.playerRole + 'Secret'] = val;
-    
+
+    db.ref('rooms/' + gameState.roomID).update(update);
+
+
+
     document.getElementById('setup-title').textContent = "Waiting for Opponent...";
+
     currentInput = ""; updateDisplay();
+
     keypad.classList.add('hidden');
 
-    // FIX: Use .then() to ensure the write finishes BEFORE checking the database
-    db.ref('rooms/' + gameState.roomID).update(update).then(() => {
-        db.ref('rooms/' + gameState.roomID).once('value', (snap) => {
-            const d = snap.val();
-            // If both players have submitted, start the game!
-            if (d.p1Secret && d.p2Secret) {
-                db.ref('rooms/' + gameState.roomID).update({ status: 'playing' });
-            }
-        });
-    }).catch((error) => {
-        console.error("Firebase error:", error);
+
+
+    db.ref('rooms/' + gameState.roomID).once('value', (snap) => {
+
+        const d = snap.val();
+
+        if (d.p1Secret && d.p2Secret) {
+
+            db.ref('rooms/' + gameState.roomID).update({ status: 'playing' });
+
+        }
+
     });
+
 }
 
 function handleOnlineGuess() {
